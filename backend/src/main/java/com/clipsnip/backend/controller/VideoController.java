@@ -9,28 +9,31 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 
+
+
+@CrossOrigin(origins = "*") // <- allows all frontend requests during development
 @RestController
 @RequestMapping("/api/videos")
 public class VideoController {
 
-    private static final String VIDEO_DIR = "uploads/";
-
     @PostMapping("/upload")
     public ResponseEntity<String> uploadVideo(@RequestParam("file") MultipartFile file) {
         try {
-            // Ensure directory exists
-            Files.createDirectories(Paths.get(VIDEO_DIR));
+            System.out.println("Upload endpoint was called!");
 
-            // Clean filename
-            String filename = StringUtils.cleanPath(file.getOriginalFilename());
-            Path filePath = Paths.get(VIDEO_DIR + filename);
+            String uploadDir = "uploads/";
+            File directory = new File(uploadDir);
+            if (!directory.exists()) {
+                directory.mkdirs();
+            }
 
-            // Save the file to disk
-            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+            Path filePath = Paths.get(uploadDir + file.getOriginalFilename());
+            Files.write(filePath, file.getBytes());
 
-            return ResponseEntity.ok("Uploaded: " + filename);
+            return ResponseEntity.ok("Uploaded: " + file.getOriginalFilename());
         } catch (IOException e) {
-            return ResponseEntity.status(500).body("Upload failed");
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Upload failed");
         }
     }
 }
