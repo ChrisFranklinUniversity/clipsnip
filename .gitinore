@@ -1,0 +1,16 @@
+# Java
+target/
+*.class
+
+# Python
+__pycache__/
+*.pyc
+.env
+
+# Node
+node_modules/
+dist/
+.env
+
+# OS files
+.DS_Store
